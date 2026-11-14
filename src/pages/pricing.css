@@ -1,0 +1,233 @@
+/* Pricing Page */
+.pricing-page {
+    min-height: calc(100vh - 54px);
+    padding: 32px 20px 60px;
+    box-sizing: border-box;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 55%, #e1f4ff 100%);
+    color: #10234e;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Heading */
+.pricing-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.pricing-header h1 {
+    margin: 0 0 10px;
+    color: #079fe8;
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.pricing-header p {
+    margin: 0;
+    color: #617493;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Cards Layout */
+.pricing-container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 24px;
+    max-width: 930px;
+    margin: 0 auto;
+}
+
+/* Individual Cards */
+.pricing-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    max-width: 454px;
+    min-width: 0;
+    padding: 26px;
+    box-sizing: border-box;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid #b9e5ff;
+    border-radius: 21px;
+    box-shadow: 0 12px 32px rgba(26, 143, 215, 0.07);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.pricing-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(26, 143, 215, 0.13);
+}
+
+.paid-card {
+    border-color: #19b7ff;
+}
+
+/* Card Headings */
+.pricing-card h2 {
+    margin: 0 0 10px;
+    color: #10234e;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.plan-description {
+    margin: 0 0 25px;
+    color: #617493;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Price */
+.plan-price {
+    margin: 0 0 22px;
+    color: #079fe8;
+    font-size: 38px;
+    font-weight: 750;
+    line-height: 1.2;
+}
+
+.plan-price span {
+    color: #617493;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+/* Divider */
+.pricing-card hr {
+    width: 100%;
+    margin: 0 0 18px;
+    border: 0;
+    border-top: 1px solid #d8e8f5;
+}
+
+/* Recommended Badge */
+.recommended-badge {
+    align-self: flex-start;
+    display: inline-block;
+    margin-bottom: 18px;
+    padding: 8px 15px;
+    border-radius: 30px;
+    background: linear-gradient(100deg, #36bdf4, #078de8);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* Features */
+.plan-features {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0 0 28px;
+    padding: 0;
+    list-style: none;
+}
+
+.plan-features li {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    color: #172e54;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.feature-check {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    background: #e0f4ff;
+    color: #079fe8;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+/* Buttons */
+.pricing-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 46px;
+    margin-top: auto;
+    padding: 12px 18px;
+    box-sizing: border-box;
+    border: 1px solid #079fe8;
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease,
+        box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Free Button */
+.free-button {
+    background: #ffffff;
+    color: #078fe8;
+}
+
+.free-button:hover {
+    background: #eaf7ff;
+    color: #0676c7;
+    box-shadow: 0 4px 12px rgba(7, 159, 232, 0.12);
+}
+
+/* Paid Button */
+.paid-button {
+    border-color: transparent;
+    background: linear-gradient(100deg, #35bdf3, #078be8);
+    color: #ffffff;
+}
+
+.paid-button:hover {
+    background: linear-gradient(100deg, #19a9e9, #0576d0);
+    box-shadow: 0 5px 15px rgba(7, 143, 232, 0.22);
+}
+
+/* Responsive Layout */
+@media (max-width: 700px) {
+    .pricing-page {
+        padding: 28px 16px 40px;
+    }
+
+    .pricing-header h1 {
+        font-size: 32px;
+    }
+
+    .pricing-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .pricing-card {
+        width: 100%;
+        max-width: 460px;
+        padding: 24px;
+    }
+}
+
+@media (max-width: 380px) {
+    .pricing-header h1 {
+        font-size: 28px;
+    }
+
+    .pricing-card {
+        padding: 20px;
+    }
+
+    .plan-price {
+        font-size: 34px;
+    }
+}

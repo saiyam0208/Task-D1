@@ -1,0 +1,327 @@
+/* =========================================
+   DEV@DEAKIN — PAYMENT PAGE
+   WHITE & ICE-BLUE THEME
+========================================= */
+
+.payment-page {
+    --payment-navy: #10234f;
+    --payment-blue: #078bea;
+    --payment-ice: #eaf7ff;
+    --payment-border: #d7e7f5;
+    --payment-muted: #647797;
+
+    min-height: calc(100vh - 55px);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 32px 20px 48px;
+
+    background:
+        radial-gradient(circle at 100% 0%, rgba(125, 211, 252, 0.18), transparent 32%),
+        radial-gradient(circle at 0% 100%, rgba(186, 230, 253, 0.2), transparent 35%),
+        linear-gradient(135deg, #ffffff 0%, #f5fbff 50%, #eaf7ff 100%);
+
+    color: var(--payment-navy);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Main payment container */
+
+.payment-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+
+    box-sizing: border-box;
+    border: 1px solid var(--payment-border);
+    border-radius: 24px;
+
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 16px 45px rgba(40, 105, 160, 0.09);
+}
+
+/* Page heading */
+
+.payment-header {
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.payment-header h1,
+.payment-page h1 {
+    color: var(--payment-navy);
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: 750;
+    line-height: 1.25;
+}
+
+.payment-header p {
+    color: var(--payment-muted);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+/* Payment summary */
+
+.payment-summary {
+    margin-bottom: 24px;
+    padding: 20px 22px;
+
+    border: 1px solid #cceaff;
+    border-radius: 15px;
+
+    background: linear-gradient(120deg, #ffffff, #eff9ff);
+}
+
+.payment-summary h2 {
+    margin: 0 0 12px;
+    color: var(--payment-navy);
+    font-size: 21px;
+}
+
+.payment-summary p {
+    margin: 8px 0;
+    color: var(--payment-muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.payment-summary .payment-price {
+    color: var(--payment-blue);
+    font-size: 32px;
+    font-weight: 800;
+}
+
+/* Payment details card */
+
+.payment-card,
+.payment-details {
+    padding: 25px;
+    border: 1px solid var(--payment-border);
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.payment-card h2,
+.payment-details h2 {
+    margin: 0 0 12px;
+    color: var(--payment-navy);
+    font-size: 24px;
+    font-weight: 750;
+}
+
+.payment-card p,
+.payment-details p {
+    color: var(--payment-muted);
+    line-height: 1.7;
+}
+
+
+.payment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 17px;
+}
+
+.payment-form>div {
+    min-width: 0;
+}
+
+.payment-form label,
+.payment-card label,
+.payment-details label {
+    display: block;
+    margin-bottom: 8px;
+
+    color: #263c60;
+    font-size: 14px;
+    font-weight: 650;
+}
+
+/* Input fields */
+
+.payment-form input,
+.payment-card input,
+.payment-details input {
+    display: block;
+    width: 100%;
+    min-height: 49px;
+    padding: 12px 14px;
+
+    box-sizing: border-box;
+    border: 1px solid #cbdced;
+    border-radius: 10px;
+
+    background: #f9fcff;
+    color: #10234f;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.payment-form input::placeholder,
+.payment-card input::placeholder,
+.payment-details input::placeholder {
+    color: #8a9bb5;
+    opacity: 1;
+}
+
+.payment-form input:focus,
+.payment-card input:focus,
+.payment-details input:focus {
+    outline: none;
+    border-color: #38bdf8;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15);
+}
+
+/* Expiry and CVV side by side */
+
+.payment-row,
+.payment-form .payment-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+/* Payment buttons */
+
+.payment-page button,
+.payment-submit,
+.payment-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 49px;
+    padding: 13px 20px;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    background: linear-gradient(100deg, #38bdf8, #078bea);
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 750;
+
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.payment-page button:hover:not(:disabled),
+.payment-submit:hover:not(:disabled),
+.payment-button:hover:not(:disabled) {
+    background: linear-gradient(100deg, #0ea5e9, #0576d5);
+    transform: translateY(-1px);
+    box-shadow: 0 7px 18px rgba(14, 165, 233, 0.2);
+}
+
+.payment-page button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Back to pricing */
+
+.payment-back,
+.back-to-pricing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 48px;
+    margin-top: 18px;
+    padding: 12px 20px;
+
+    box-sizing: border-box;
+    border: 1px solid #38bdf8;
+    border-radius: 10px;
+
+    background: #ffffff;
+    color: var(--payment-blue);
+
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+
+    transition: background 0.2s ease;
+}
+
+.payment-back:hover,
+.back-to-pricing:hover {
+    background: #eff9ff;
+}
+
+/* Validation and status messages */
+
+.payment-error,
+.payment-success,
+.payment-message {
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.payment-error {
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #b91c1c;
+}
+
+.payment-success {
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+/* Demo disclaimer */
+
+.payment-note {
+    margin: 22px 0 0;
+    color: #7488a4;
+    font-size: 13px;
+    line-height: 1.7;
+    text-align: center;
+}
+
+/* Responsive layout */
+
+@media (max-width: 600px) {
+    .payment-page {
+        padding: 22px 14px 30px;
+    }
+
+    .payment-container {
+        padding: 18px;
+        border-radius: 17px;
+    }
+
+    .payment-card,
+    .payment-details {
+        padding: 18px;
+    }
+
+    .payment-row,
+    .payment-form .payment-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .payment-card h2,
+    .payment-details h2 {
+        font-size: 21px;
+    }
+}
