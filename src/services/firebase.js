@@ -1,30 +1,24 @@
+﻿// ==============================================================================
+// FIREBASE CONFIGURATION (Beginner-Friendly & Robust)
 // ==============================================================================
-// FIREBASE CONFIGURATION (Beginner-Friendly)
-// ==============================================================================
-// 1. Import initializeApp from Firebase to connect our app to the Firebase project.
-import { initializeApp } from "firebase/app";
-
-// 2. Import Authentication and Firestore services from Firebase SDK.
+import { initializeApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// 3. Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDcDRjTnmsSlzlTi4WyhmvjbRHNcqYtJsY",
-  authDomain: "myreactfirebase-bb03e.firebaseapp.com",
-  projectId: "myreactfirebase-bb03e",
-  storageBucket: "myreactfirebase-bb03e.firebasestorage.app",
-  messagingSenderId: "775558197276",
-  appId: "1:775558197276:web:649bdf55cc79ca6f58efd9",
+  apiKey: import.meta.env?.VITE_FIREBASE_API_KEY || "AIzaSyDcDRjTnmsSlzlTi4WyhmvjbRHNcqYtJsY",
+  authDomain: import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN || "myreactfirebase-bb03e.firebaseapp.com",
+  projectId: import.meta.env?.VITE_FIREBASE_PROJECT_ID || "myreactfirebase-bb03e",
+  storageBucket: import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET || "myreactfirebase-bb03e.firebasestorage.app",
+  messagingSenderId: import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID || "775558197276",
+  appId: import.meta.env?.VITE_FIREBASE_APP_ID || "1:775558197276:web:649bdf55cc79ca6f58efd9",
 };
 
-// 4. Initialize Firebase with the configuration
-const app = initializeApp(firebaseConfig);
+// Initialize or reuse Firebase App
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
-// 5. Export Firebase Auth and Firestore Database so other pages can use them easily
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const firebaseConfigured = true;
+export const firebaseConfigured = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId);
 
-// Default export of the initialized app
 export default app;

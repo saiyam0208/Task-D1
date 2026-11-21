@@ -1,17 +1,19 @@
-// ==============================================================================
-// NAVBAR COMPONENT (Beginner-Friendly, Responsive, Smooth Scroll & Profile Logo)
+﻿// ==============================================================================
+// NAVBAR COMPONENT (Responsive, Accessible, Smooth Scroll, Paid Status & Profile)
+// SIT313 D1 Subscription Task
 // ==============================================================================
 
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./authContext.jsx";
 
 export default function Navbar({
   theme = "light",
-  onThemeChange = () => { },
+  onThemeChange = () => {},
 }) {
-  const { user, loading, logout } = useAuth();
+  const { user, subscriptionPlan, loading, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Mobile navigation menu toggle state
   const [menuOpen, setMenuOpen] = useState(false);
@@ -21,8 +23,8 @@ export default function Navbar({
 
   const profileRef = useRef(null);
 
-  // Close menus helper
-  const closeMenu = () => {
+  // Close all open menus
+  const closeMenus = () => {
     setMenuOpen(false);
     setProfileOpen(false);
   };
@@ -38,11 +40,16 @@ export default function Navbar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    closeMenus();
+  }, [location.pathname, location.hash]);
+
   // Logout handler
   const handleLogout = async () => {
     try {
       await logout();
-      closeMenu();
+      closeMenus();
       navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -56,10 +63,10 @@ export default function Navbar({
 
   // Smooth scroll handler for section links (About Me, My Work, Articles, Tutorials, Gallery)
   const handleSectionClick = (sectionId, event) => {
-    closeMenu();
+    closeMenus();
 
     // If currently on Home page ("/"), scroll smoothly directly
-    if (window.location.pathname === "/") {
+    if (location.pathname === "/") {
       if (event) event.preventDefault();
       const element = document.getElementById(sectionId);
       if (element) {
@@ -67,33 +74,42 @@ export default function Navbar({
         window.history.pushState(null, "", `/#${sectionId}`);
       }
     }
-    // If on another page (/browse, /post, etc.), the Link to={`/#${sectionId}`} navigates to Home,
-    // and the hash listener in App.jsx scrolls to the section automatically!
+    // If on another page (/pricing, /post, etc.), the Link to={`/#${sectionId}`} navigates to Home,
+    // and the hash listener in App.jsx scrolls to the section automatically.
+  };
+
+  // Logo click handler
+  const handleLogoClick = (e) => {
+    closeMenus();
+    if (location.pathname === "/" && !location.hash) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   return (
     <header className="site-header">
-      <nav className="navbar">
-        {/* DEV@Deakin Logo - Visible in both Light and Dark mode */}
-        <Link to="/" className="navbar-logo" onClick={closeMenu}>
+      <nav className="navbar" aria-label="Main Navigation">
+        {/* DEV@Deakin Brand Logo */}
+        <Link to="/" className="navbar-logo" onClick={handleLogoClick}>
           <span className="logo-dev">DEV</span>
           <span className="logo-at">@</span>
           <span className="logo-deakin">Deakin</span>
           <span className="logo-dot">.</span>
         </Link>
 
-        {/* Mobile menu toggle button */}
+        {/* Mobile menu toggle hamburger button */}
         <button
           type="button"
           className="mobile-menu-toggle"
           onClick={() => setMenuOpen((open) => !open)}
-          aria-label="Toggle navigation"
+          aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
           aria-expanded={menuOpen}
         >
           {menuOpen ? "✕" : "☰"}
         </button>
 
-        {/* Navigation Section Links - Smooth redirect to each section */}
+        {/* Desktop Navigation Links */}
         <div className={`navbar-links ${menuOpen ? "open" : ""}`}>
           <Link
             to="/#about"
@@ -125,12 +141,56 @@ export default function Navbar({
           >
             Gallery
           </Link>
-          <Link to="/browse" onClick={closeMenu}>
-            Browse Posts
+          <Link to="/pricing" onClick={closeMenus}>
+            Pricing
           </Link>
+
+          {/* Additional mobile-drawer controls displayed only on smaller screens */}
+          <div className="mobile-drawer-extra">
+            <button
+              type="button"
+              className="theme-toggle mobile-theme-btn"
+              onClick={toggleTheme}
+            >
+              {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
+            </button>
+
+            <div className="mobile-drawer-actions">
+              <Link
+                to="/pricing"
+                className={`upgrade-button ${subscriptionPlan === "Paid" ? "paid-active-badge" : ""}`}
+                onClick={closeMenus}
+              >
+                {subscriptionPlan === "Paid" ? "★ Paid Member" : "Upgrade Plan"}
+              </Link>
+              <Link to="/post" className="post-button" onClick={closeMenus}>
+                + New Post
+              </Link>
+              {!loading && (
+                user ? (
+                  <button
+                    type="button"
+                    className="signin-button"
+                    onClick={handleLogout}
+                  >
+                    Sign Out
+                  </button>
+                ) : (
+                  <>
+                    <Link to="/login" className="signin-button" onClick={closeMenus}>
+                      Login
+                    </Link>
+                    <Link to="/signup" className="signin-button signup-button-link" onClick={closeMenus}>
+                      Sign Up
+                    </Link>
+                  </>
+                )
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Right-side tools: Theme toggle, Action buttons & Profile Logo */}
+        {/* Right-side tools: Theme toggle, Action buttons & Profile Dropdown */}
         <div className="navbar-tools">
           {/* Light / Dark Mode Toggle */}
           <button
@@ -139,23 +199,25 @@ export default function Navbar({
             onClick={toggleTheme}
             aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
           >
-            {theme === "dark" ? " Light" : " Dark"}
+            {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
           </button>
 
           {/* Action Links */}
           <div className="navbar-actions">
             <Link
               to="/pricing"
-              className="upgrade-button"
-              onClick={closeMenu}
+              className={`upgrade-button ${subscriptionPlan === "Paid" ? "paid-active-badge" : ""}`}
+              onClick={closeMenus}
+              title={subscriptionPlan === "Paid" ? "View your active Paid Plan" : "Upgrade to Paid Plan"}
             >
-              Upgrade
+              {subscriptionPlan === "Paid" ? "★ Paid Plan" : "Upgrade"}
             </Link>
 
             <Link
               to="/post"
               className="post-button"
-              onClick={closeMenu}
+              onClick={closeMenus}
+              title="Create a new post"
             >
               + Post
             </Link>
@@ -166,6 +228,7 @@ export default function Navbar({
                   type="button"
                   className="signin-button"
                   onClick={handleLogout}
+                  title="Sign out of your account"
                 >
                   Sign Out
                 </button>
@@ -174,7 +237,7 @@ export default function Navbar({
                   <Link
                     to="/login"
                     className="signin-button"
-                    onClick={closeMenu}
+                    onClick={closeMenus}
                   >
                     Login
                   </Link>
@@ -182,7 +245,7 @@ export default function Navbar({
                   <Link
                     to="/signup"
                     className="signin-button signup-button-link"
-                    onClick={closeMenu}
+                    onClick={closeMenus}
                   >
                     Sign Up
                   </Link>
@@ -191,7 +254,7 @@ export default function Navbar({
             )}
           </div>
 
-          {/* TOP RIGHT PROFILE LOGO (For both Guest & Logged-in/Google Users) */}
+          {/* Profile Menu Dropdown */}
           <div className="navbar-profile-container" ref={profileRef}>
             <button
               type="button"
@@ -202,24 +265,21 @@ export default function Navbar({
             >
               {user ? (
                 user.photoURL ? (
-                  // Google profile picture
                   <img
                     src={user.photoURL}
-                    alt={user.displayName || "Google Profile"}
+                    alt={user.displayName || "User Profile"}
                     className="nav-avatar-img"
                   />
                 ) : (
-                  // Initial letter avatar for email/password user
                   <div className="nav-avatar-circle initial-avatar">
                     {user.displayName
                       ? user.displayName[0].toUpperCase()
                       : user.email
-                        ? user.email[0].toUpperCase()
-                        : "U"}
+                      ? user.email[0].toUpperCase()
+                      : "U"}
                   </div>
                 )
               ) : (
-                // Guest profile logo
                 <div className="nav-avatar-circle guest-avatar" title="Guest User">
                   <svg
                     className="guest-icon"
@@ -250,41 +310,40 @@ export default function Navbar({
                         <div className="dropdown-avatar-circle">
                           {user.displayName
                             ? user.displayName[0].toUpperCase()
+                            : user.email
+                            ? user.email[0].toUpperCase()
                             : "U"}
                         </div>
                       )}
                       <div className="dropdown-user-details">
-                        <strong>
-                          {user.displayName || "Logged-in User"}
-                        </strong>
-                        <span>{user.email}</span>
+                        <strong>{user.displayName || "Logged-in User"}</strong>
+                        <span className="dropdown-email">{user.email}</span>
+                        <span
+                          className={`dropdown-plan-badge ${
+                            subscriptionPlan === "Paid" ? "plan-paid" : "plan-free"
+                          }`}
+                        >
+                          {subscriptionPlan === "Paid" ? "★ Paid Member ($9.99)" : "Free Member ($0)"}
+                        </span>
                       </div>
                     </div>
 
                     <div className="dropdown-divider" />
 
                     <Link
-                      to="/browse"
+                      to="/pricing"
                       className="dropdown-item"
-                      onClick={() => setProfileOpen(false)}
+                      onClick={closeMenus}
                     >
-                      Browse Posts
+                      Pricing Plans
                     </Link>
 
                     <Link
                       to="/post"
                       className="dropdown-item"
-                      onClick={() => setProfileOpen(false)}
+                      onClick={closeMenus}
                     >
                       Create Post
-                    </Link>
-
-                    <Link
-                      to="/pricing"
-                      className="dropdown-item"
-                      onClick={() => setProfileOpen(false)}
-                    >
-                      Subscription Plan
                     </Link>
 
                     <div className="dropdown-divider" />
@@ -317,7 +376,7 @@ export default function Navbar({
                     </div>
 
                     <p className="dropdown-guest-note">
-                      Sign in or create an account to publish questions and articles.
+                      Sign in or create an account to upgrade your subscription plan and share posts.
                     </p>
 
                     <div className="dropdown-divider" />
@@ -326,14 +385,14 @@ export default function Navbar({
                       <Link
                         to="/login"
                         className="dropdown-btn-login"
-                        onClick={() => setProfileOpen(false)}
+                        onClick={closeMenus}
                       >
                         Login
                       </Link>
                       <Link
                         to="/signup"
                         className="dropdown-btn-signup"
-                        onClick={() => setProfileOpen(false)}
+                        onClick={closeMenus}
                       >
                         Sign Up
                       </Link>

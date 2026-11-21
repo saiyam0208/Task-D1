@@ -3,7 +3,7 @@
 // ==============================================================================
 
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 // 1. Import Firebase Authentication methods
 import {
@@ -14,7 +14,7 @@ import {
 } from "firebase/auth";
 
 // 2. Import Firestore database methods to save user information
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 // 3. Import our initialized Firebase auth and db instances
 import { auth, db } from "../services/firebase.js";
@@ -23,29 +23,24 @@ import { auth, db } from "../services/firebase.js";
 import "../App.css";
 
 export default function Signup() {
-  // ----------------------------------------------------------------------------
-  // STEP 1: State Variables
-  // ----------------------------------------------------------------------------
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Error and loading states
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Hook to navigate the user
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // ----------------------------------------------------------------------------
+  const redirectTo = location.state?.redirectTo || "/";
+
   // STEP 2: Email & Password Signup Handler
-  // ----------------------------------------------------------------------------
   async function handleSignup(event) {
     event.preventDefault();
     setError("");
 
-    // --- Basic Validation ---
     if (!fullName.trim()) {
       setError("Please enter your full name.");
       return;
@@ -89,9 +84,9 @@ export default function Signup() {
         });
       }
 
-      // 4. Redirect to login page with a success message
+      // 4. Redirect to login page or destination with success message
       navigate("/login", {
-        state: { signupSuccess: true },
+        state: { signupSuccess: true, redirectTo, action: location.state?.action },
         replace: true,
       });
     } catch (err) {
@@ -111,9 +106,7 @@ export default function Signup() {
     }
   }
 
-  // ----------------------------------------------------------------------------
   // STEP 3: Google Sign-Up Handler
-  // ----------------------------------------------------------------------------
   async function handleGoogleSignup() {
     setError("");
     setLoading(true);
@@ -123,23 +116,22 @@ export default function Signup() {
       const result = await signInWithPopup(auth, provider);
       const googleUser = result.user;
 
-      // Save user details into Firestore "users" collection
+      // Save user details into Firestore "users" collection without overwriting
       if (db) {
-        await setDoc(
-          doc(db, "users", googleUser.uid),
-          {
+        const userRef = doc(db, "users", googleUser.uid);
+        const snap = await getDoc(userRef);
+        if (!snap.exists()) {
+          await setDoc(userRef, {
             fullName: googleUser.displayName || "Google User",
             displayName: googleUser.displayName || "Google User",
             email: googleUser.email,
             subscriptionPlan: "Free",
             createdAt: serverTimestamp(),
-          },
-          { merge: true }
-        );
+          });
+        }
       }
 
-      // Automatically redirect to browse posts
-      navigate("/browse", { replace: true });
+      navigate(redirectTo, { replace: true, state: location.state });
     } catch (err) {
       console.error("Google signup error:", err);
       if (err.code === "auth/popup-closed-by-user") {
@@ -152,23 +144,18 @@ export default function Signup() {
     }
   }
 
-  // ----------------------------------------------------------------------------
-  // STEP 4: Render UI (JSX)
-  // ----------------------------------------------------------------------------
   return (
     <section className="auth-page">
       <form className="auth-card" onSubmit={handleSignup}>
         <h1>Create Account</h1>
         <p>Sign up to start sharing posts on DEV@Deakin.</p>
 
-        {/* Display error alert if any */}
         {error && (
           <div className="form-error" role="alert">
             {error}
           </div>
         )}
 
-        {/* Full Name */}
         <div>
           <label htmlFor="signup-name">Full Name</label>
           <input
@@ -181,7 +168,6 @@ export default function Signup() {
           />
         </div>
 
-        {/* Email */}
         <div>
           <label htmlFor="signup-email">Email Address</label>
           <input
@@ -194,7 +180,6 @@ export default function Signup() {
           />
         </div>
 
-        {/* Password */}
         <div>
           <label htmlFor="signup-password">Password</label>
           <input
@@ -207,7 +192,6 @@ export default function Signup() {
           />
         </div>
 
-        {/* Confirm Password */}
         <div>
           <label htmlFor="signup-confirm-password">Confirm Password</label>
           <input
@@ -220,17 +204,14 @@ export default function Signup() {
           />
         </div>
 
-        {/* Email Signup Submit Button */}
         <button type="submit" disabled={loading}>
           {loading ? "Creating Account..." : "Sign Up"}
         </button>
 
-        {/* Divider */}
         <div className="auth-divider">
           <span>OR</span>
         </div>
 
-        {/* Google Signup Button */}
         <button
           type="button"
           className="btn-google-auth"
@@ -263,9 +244,11 @@ export default function Signup() {
           Sign up with Google
         </button>
 
-        {/* Link to Login */}
         <p className="auth-link">
-          Already have an account? <Link to="/login">Log in here</Link>
+          Already have an account?{" "}
+          <Link to="/login" state={location.state}>
+            Log in here
+          </Link>
         </p>
       </form>
     </section>

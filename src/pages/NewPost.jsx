@@ -86,7 +86,7 @@ export default function NewPost() {
           articleText: articleText.trim(),
           tags: tagList,
           postPlan,
-          authorName: user?.displayName || user?.email || "Shubh Batra",
+          authorName: user?.displayName || user?.email || "Saiyam Sharma",
         }),
       });
 
@@ -106,7 +106,7 @@ export default function NewPost() {
 
       // Automatically navigate to browse posts after a short delay, or user can click the banner
       setTimeout(() => {
-        navigate("/browse");
+        navigate("/");
       }, 1500);
     } catch (err) {
       setError(true);
@@ -130,7 +130,7 @@ export default function NewPost() {
           >
             <span>{message}</span>
             {published && (
-              <Link to="/browse" className="alert-link">
+              <Link to="/" className="alert-link">
                 View on Browse Posts →
               </Link>
             )}

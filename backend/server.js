@@ -93,8 +93,8 @@ app.post("/api/posts", optionalAuth, async (req, res) => {
     }
 
     let uid = "demo_user";
-    let authorEmail = "shubh.batra@deakin.edu.au";
-    let name = authorName || "Shubh Batra";
+    let authorEmail = "saiyama@deakin.edu.au";
+    let name = authorName || "Saiyam Sharma";
 
     if (req.user) {
       uid = req.user.uid;
@@ -105,7 +105,7 @@ app.post("/api/posts", optionalAuth, async (req, res) => {
       }
       const userSnap = await adminDb.collection("users").doc(req.user.uid).get();
       const profile = userSnap.exists ? userSnap.data() : {};
-      name = profile.displayName || req.user.name || req.user.email || "Shubh Batra";
+      name = profile.displayName || req.user.name || req.user.email || "Saiyam Sharma";
     }
 
     const record = {
@@ -150,7 +150,7 @@ app.get("/api/posts", optionalAuth, async (req, res) => {
           articleText: x.articleText || "",
           tags: x.tags || [],
           postPlan: x.postPlan || "Free",
-          authorName: x.authorName || "Shubh Batra",
+          authorName: x.authorName || "Saiyam Sharma",
           authorEmail: x.authorEmail || "",
           createdAt: x.createdAt?.toDate?.().toISOString() || null,
         };

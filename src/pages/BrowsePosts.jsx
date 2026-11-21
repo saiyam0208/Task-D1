@@ -346,7 +346,7 @@ export default function BrowsePosts() {
 
                   {/* Author */}
                   <div className="card-author-name">
-                    Posted by {post.authorName || "Shubh Batra"}
+                    Posted by {post.authorName || "Saiyam Sharma"}
                   </div>
 
                   {/* Body / Snippet */}

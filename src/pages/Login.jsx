@@ -1,6 +1,4 @@
-// ==============================================================================
-// LOGIN PAGE (Beginner-Friendly with Email/Password & Google Login)
-// ==============================================================================
+﻿// LOGIN PAGE (with Email/Password & Google Login)
 
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -10,11 +8,10 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
-  updateProfile,
 } from "firebase/auth";
 
 // 2. Import Firestore methods to record user details on login
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 // 3. Import Firebase instances from our configuration service
 import { auth, db, firebaseConfigured } from "../services/firebase.js";
@@ -28,7 +25,7 @@ export default function Login() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, subscriptionPlan } = useAuth();
 
   // Destination to redirect to after successful login
   const redirectTo = location.state?.redirectTo || "/";
@@ -40,6 +37,22 @@ export default function Login() {
         <div className="auth-card">
           <h1>You are signed in</h1>
           <p>Welcome back, {user.displayName || user.email || "Community Member"}!</p>
+          <div style={{ margin: "12px 0 20px" }}>
+            <span
+              style={{
+                display: "inline-block",
+                padding: "6px 14px",
+                borderRadius: "20px",
+                fontSize: "13px",
+                fontWeight: 700,
+                background: subscriptionPlan === "Paid" ? "#dcfce7" : "#e0f2fe",
+                color: subscriptionPlan === "Paid" ? "#166534" : "#0369a1",
+                border: subscriptionPlan === "Paid" ? "1px solid #86efac" : "1px solid #bae6fd",
+              }}
+            >
+              Current Status: {subscriptionPlan === "Paid" ? "★ Paid Member ($9.99)" : "Free Member ($0)"}
+            </span>
+          </div>
 
           <button
             type="button"
@@ -50,7 +63,7 @@ export default function Login() {
               })
             }
           >
-            Continue
+            Continue to {redirectTo === "/payment" ? "Upgrade Form" : redirectTo === "/pricing" ? "Pricing" : "Home"}
           </button>
         </div>
       </section>
@@ -78,7 +91,24 @@ export default function Login() {
         password
       );
 
-      // Return to the previous page or home
+      // Verify or ensure user document in Firestore without overwriting plan
+      if (db && credential.user) {
+        const userRef = doc(db, "users", credential.user.uid);
+        const snap = await getDoc(userRef);
+        if (!snap.exists()) {
+          await setDoc(userRef, {
+            email: credential.user.email,
+            displayName: credential.user.displayName || credential.user.email,
+            subscriptionPlan: "Free",
+            createdAt: serverTimestamp(),
+            lastLogin: serverTimestamp(),
+          });
+        } else {
+          await setDoc(userRef, { lastLogin: serverTimestamp() }, { merge: true });
+        }
+      }
+
+      // Return to destination
       navigate(redirectTo, {
         state: location.state,
         replace: true,
@@ -111,19 +141,31 @@ export default function Login() {
       const result = await signInWithPopup(auth, provider);
       const googleUser = result.user;
 
-      // Save or update user profile in Firestore database
+      // Save or update user profile in Firestore database safely
       if (db) {
-        await setDoc(
-          doc(db, "users", googleUser.uid),
-          {
+        const userRef = doc(db, "users", googleUser.uid);
+        const snap = await getDoc(userRef);
+        if (!snap.exists()) {
+          await setDoc(userRef, {
             fullName: googleUser.displayName || "Google User",
             displayName: googleUser.displayName || "Google User",
             email: googleUser.email,
             subscriptionPlan: "Free",
+            createdAt: serverTimestamp(),
             lastLogin: serverTimestamp(),
-          },
-          { merge: true }
-        );
+          });
+        } else {
+          await setDoc(
+            userRef,
+            {
+              fullName: snap.data().fullName || googleUser.displayName || "Google User",
+              displayName: snap.data().displayName || googleUser.displayName || "Google User",
+              email: googleUser.email,
+              lastLogin: serverTimestamp(),
+            },
+            { merge: true }
+          );
+        }
       }
 
       // Return to destination
@@ -148,6 +190,24 @@ export default function Login() {
       <form className="auth-card" onSubmit={handleSubmit}>
         <h1>Login</h1>
         <p>Sign in to your DEV@Deakin account.</p>
+
+        {/* Action context note */}
+        {location.state?.action === "upgrade" && (
+          <div
+            style={{
+              color: "#0369a1",
+              background: "#f0f9ff",
+              border: "1px solid #bae6fd",
+              padding: "10px 14px",
+              borderRadius: "8px",
+              fontSize: "13px",
+              marginBottom: "14px",
+              textAlign: "left",
+            }}
+          >
+            <strong>Sign In Required:</strong> Please log in to complete your upgrade to the <strong>Paid Plan ($9.99/mo)</strong>.
+          </div>
+        )}
 
         {/* Success message if redirected from Signup */}
         {location.state?.signupSuccess && (
@@ -243,7 +303,10 @@ export default function Login() {
         </button>
 
         <p className="auth-link">
-          Don't have an account? <Link to="/signup">Sign up here</Link>
+          Don't have an account?{" "}
+          <Link to="/signup" state={location.state}>
+            Sign up here
+          </Link>
         </p>
       </form>
     </section>
